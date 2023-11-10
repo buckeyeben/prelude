@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consent Banner Example</title>
+</head>
+<body id="body">
+
+<!-- Title -->
+<h1>Advanced Consent Mode Example</h1>
+
+<!-- Consent Banner -->
+<div id="consentBanner" style="display: none; position: fixed; padding: 10px; text-align: center; z-index: 999;">
+    <p>We use cookies and collect data to improve your experience. Do you consent?</p>
+    <button id="grantButton">Grant</button>
+    <button id="denyButton">Deny</button>
+</div>
+
+<!-- Reset Consent Button -->
+<button id="resetConsentButton">Reset Consent</button>
+
+<script>
+  // Define dataLayer and the gtag function.
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+
+  // Default ad_storage and analytics_storage to 'denied'.
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied'
+  });
+</script>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MK438VM');</script>
+<!-- End Google Tag Manager -->
+
+<script>
+  function updateConsentState(state) {
+    gtag('consent', 'update', {
+      'ad_storage': state,
+      'analytics_storage': state
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const consentBanner = document.getElementById("consentBanner");
+    const grantButton = document.getElementById("grantButton");
+    const denyButton = document.getElementById("denyButton");
+    const resetConsentButton = document.getElementById("resetConsentButton");
+    const body = document.getElementById("body");
+
+    function updateBackgroundColor(consentState) {
+      // Update the background color based on the consent state.
+      if (consentState === "unset") {
+          body.style.backgroundColor = "#f0f0f0"; // Grey
+      } else if (consentState === "denied") {
+          body.style.backgroundColor = "#ff0000"; // Red
+      } else if (consentState === "granted") {
+          body.style.backgroundColor = "#00ff00"; // Green
+      }
+    }
+
+    // Initialize background color based on the initial consent state.
+    const initialConsentState = localStorage.getItem("consentState") || "unset";
+    updateBackgroundColor(initialConsentState);
+
+    if (!localStorage.getItem("consentGranted")) {
+      // Show the consent banner if consent has not been granted.
+      consentBanner.style.display = "block";
+    }
+
+    grantButton.addEventListener("click", function() {
+      // Set a flag to remember that the user granted consent (you can use localStorage or cookies).
+      localStorage.setItem("consentState", "granted");
+
+      // Fire Google Tag Manager code here
+      window.dataLayer.push({'event': 'consentGranted'});
+
+      // Update the consent state to granted using the Consent Mode API.
+      updateConsentState('granted');
+
+      // Hide the consent banner.
+      consentBanner.style.display = "none";
+
+      // Update the background color.
+      updateBackgroundColor("granted");
+    });
+
+    denyButton.addEventListener("click", function() {
+      // Handle the case when the user denies consent (e.g., you may disable certain tracking).
+      // Set the consent state to "denied."
+      localStorage.setItem("consentState", "denied");
+
+      // Fire Google Tag Manager code here
+      window.dataLayer.push({'event': 'consentDenied'});
+
+      // Update the consent state to denied using the Consent Mode API.
+      updateConsentState('denied');
+
+      // Hide the consent banner.
+      consentBanner.style.display = "none";
+
+      // Update the background color.
+      updateBackgroundColor("denied");
+    });
+
+    resetConsentButton.addEventListener("click", function() {
+      // Reset the consent state to "unset."
+      localStorage.removeItem("consentState");
+
+      // Show the consent banner.
+      consentBanner.style.display = "block";
+
+      // Update the consent state to unset using the Consent Mode API.
+      updateConsentState('unset');
+
+      // Update the background color.
+      updateBackgroundColor("unset");
+    });
+  });
+</script>
+
+</body>
+</html>
+
